@@ -1,0 +1,1 @@
+$(document).ready(function(){function o(){$("#popup_box").fadeOut("slow"),$("#container").css({opacity:"1"})}function n(){$("#popup_box").fadeIn("slow"),$("#container").css({opacity:"0.3"})}n(),$("#popupBoxClose").click(function(){o()}),$("#container").click(function(){o()})});

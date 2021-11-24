@@ -1,0 +1,1 @@
+function submitOnSave(){var e=document.getElementById("datepicker").value,t=document.getElementById("datepicker1").value,n=e.split("/").reverse().join("-"),a=t.split("/").reverse().join("-");""!=e&&$("#dateField").val(n),""!=t&&$("#dateField1").val(a)}$(function(){$("#datepicker,#datepicker1").datepicker({showOn:"button",buttonImage:"images/calender.png",buttonImageOnly:!0})});

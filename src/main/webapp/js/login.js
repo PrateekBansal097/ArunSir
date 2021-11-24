@@ -1,0 +1,1 @@
+$(document).ready(function(){var e=($.cookie("pm[remember]"),$.cookie("pm[email]"));void 0!=e&&"null"!=e?($("#username").val($.cookie("pm[email]")),$("#pass").val($.cookie("pm[pass]")),$("#c1").prop("checked",!0)):$("#c1").prop("checked",!1)});

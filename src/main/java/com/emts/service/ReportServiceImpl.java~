@@ -1,0 +1,462 @@
+package com.emts.service;
+
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import org.apache.poi.hssf.usermodel.HSSFRow;
+import org.apache.poi.hssf.usermodel.HSSFSheet;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.Row;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.emts.dao.ReportDao;
+import com.emts.model.AdvertisementTracking;
+import com.emts.model.PrintTracking;
+import com.emts.model.Tracking;
+
+@Service
+public class ReportServiceImpl implements ReportService {
+	@Autowired
+	@SuppressWarnings("all")
+	private ReportDao reportDao;
+
+	public HashMap<String, Object[]> pieChartReport(Integer clientId,
+			String fromDate, String toDate, Integer channelId, String param) {
+		return reportDao.pieChartReport(clientId, fromDate, toDate, channelId,
+				param);
+	}
+
+	public HashMap<String, List<Object>> genrateSectorWisePieChartReport(
+			Integer clientId, String fromDate, String toDate, String param) {
+
+		HashMap<String, List<Object>> map = reportDao
+				.genrateSectorWisePieChartReport(clientId, fromDate, toDate,
+						param);
+		HashMap<String, List<Object>> sectorMap = new HashMap<String, List<Object>>();
+		Set set = map.keySet();
+		Iterator iterator = set.iterator();
+
+		while (iterator.hasNext()) {
+			List<Object> sectorPositiveList = (List<Object>) map.get(iterator
+					.next());
+			List<Object> sectorNegitiveList = (List<Object>) map.get(iterator
+					.next());
+			List<Object> channelList = (List<Object>) map.get(iterator.next());
+			/*
+			 * for(int j=0;j<sectorPositiveList.size();j++) { Object[] obj =
+			 * (Object[])sectorPositiveList.get(j); ArrayList positiveSector =
+			 * new ArrayList(Arrays.asList(obj));
+			 * sectorMap.put("positiveSector"+j, positiveSector); } for(int
+			 * j=0;j<sectorNegitiveList.size();j++) { Object[] obj =
+			 * (Object[])sectorNegitiveList.get(j); ArrayList negativeSector =
+			 * new ArrayList(Arrays.asList(obj));
+			 * sectorMap.put("negativeSector"+j, negativeSector); }
+			 */
+			sectorMap.put("sectorPositiveList", sectorPositiveList);
+			sectorMap.put("sectorNegitiveList", sectorNegitiveList);
+			sectorMap.put("channelList", channelList);
+
+		}
+		return sectorMap;
+	}
+
+	public HashMap<String, List<Object>> channelWisePieChart(Integer clientId,
+			String fromDate, String toDate, String param) {
+		return reportDao.channelWisePieChart(clientId, fromDate, toDate, param);
+
+	}
+
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public List<Tracking> EMTPDFReport(String fromDate, String toDate,
+			Integer channelId) {
+		List<Tracking> pdfTracking = new ArrayList<Tracking>();
+		pdfTracking = (List) reportDao
+				.EMTPDFReport(fromDate, toDate, channelId);
+		return pdfTracking;
+	}
+
+	public HashMap<String, List<Object>> sectorWiseNegativePosReport(
+			Integer clientId, String fromDate, String toDate,
+			Integer channelId, String param) {
+		return reportDao.sectorWiseNegativePosReport(clientId, fromDate,
+				toDate, channelId, param);
+	}
+
+	// generate excel report started
+	public Boolean getExcelReport(String getreportfromDate,
+			String getreporttoDate, String getreportchannelId) {
+		boolean reportGenerated = false;
+
+		try {
+
+			Map<String, List<Tracking>> dateWiseTrackingListMap = reportDao
+					.getExcelReportList(getreportfromDate, getreporttoDate,
+							getreportchannelId);
+			HSSFWorkbook workbook = new HSSFWorkbook();
+			int previousMonth = 0;
+			int currentMonth = 0;
+			int rowNum = 0;
+			HSSFSheet sheet = null;
+			if (null != dateWiseTrackingListMap
+					&& dateWiseTrackingListMap.size() > 0) {
+				for (Map.Entry<String, List<Tracking>> TrackingListMap : dateWiseTrackingListMap
+						.entrySet()) {
+					sheet = workbook.createSheet(String.valueOf(TrackingListMap
+							.getKey()));
+					insertDataIntoSheet(true, sheet,
+							TrackingListMap.getValue(), rowNum++);
+				}	
+			}
+			 
+		
+			File f = new File("/home/dell/Projects/EMTS/src/main/webapp/pdfReports/Emts_Excel_Report.xls");
+		     f.mkdirs(); 
+			FileOutputStream out = new FileOutputStream(
+					new File(
+							"/home/dell/Projects/EMTS/src/main/webapp/pdfReports/Emts_Excel_Report.xls"));
+			workbook.write(out);
+			out.close();
+			reportGenerated = true;
+
+		} catch (FileNotFoundException fileNotFoundException) {
+			fileNotFoundException.printStackTrace();
+		} catch (IOException ioException) {
+			ioException.printStackTrace();
+		}
+
+		return reportGenerated;
+	}
+
+
+	private void insertDataIntoSheet(boolean headerRequired, HSSFSheet sheet,
+			List<Tracking> trackingList, int rowNum) {
+		
+		if(headerRequired){
+			//testing purpose 
+			Object[] headerList = new Object[] {"S.NO","Slug","City","Time","NewsType","Sector","SubSector","News Trend","Story Code"};
+			createReportHeader(sheet,rowNum++,headerList);
+		}
+
+		Row row = null;	
+		
+	    int cellnum = 0;
+	    for (Tracking tracking : trackingList) {
+	    	if(trackingList.size() > 1){
+	    		row = sheet.createRow(rowNum++);
+	    		cellnum = 0;
+	    	}else{
+	    		
+	    		row = sheet.createRow(rowNum++);
+	    	}   
+
+			Object[] trackingObject = convertTrackingToObjectArray(tracking);
+
+			if (null != trackingObject) {
+
+				for (Object obj : trackingObject) {
+					Cell cell = row.createCell(cellnum++);
+					if (obj instanceof Date)
+						cell.setCellValue((Date) obj);
+					else if (obj instanceof Boolean)
+						cell.setCellValue((Boolean) obj);
+					else if (obj instanceof String)
+						cell.setCellValue((String) obj);
+					else if (obj instanceof Double)
+						cell.setCellValue((Double) obj);
+					else if (obj instanceof Float)
+						cell.setCellValue((Float) obj);
+					else if (obj instanceof Integer)
+						cell.setCellValue((Integer) obj);
+				}
+			}
+		}
+
+	}
+
+	private Object[] convertTrackingToObjectArray(Tracking tracking) {
+
+		Object[] trackingObject = null;
+		
+		if (null != tracking)
+			
+			trackingObject = new Object[] { tracking.getTrackingId(),
+					tracking.getTextArea(), tracking.getCity().getCityName(),
+					tracking.getTime(),
+					tracking.getNewsType().getNewsTypeName(),
+					tracking.getSector().getSectorName(),
+					tracking.getSubSector().getSubSectorName(),
+					tracking.getNewsTrend(), tracking.getStoryCode() };
+		
+		return trackingObject;
+
+}
+	private void createReportHeader(HSSFSheet sheet, int rowNumber,
+			Object[] headerList) {
+		// TODO Auto-generated method stub
+		
+		Row row = sheet.createRow(rowNumber);
+		
+		int cellnum = 0;
+		for (Object obj : headerList) {
+			Cell cell = row.createCell(cellnum++);
+			cell.setCellValue((String) obj);
+		}
+	}
+
+	// generate excel report functionality end
+
+	// *********************************************************************************************************************
+	// generate Adv excel report functionality started
+
+	public Boolean getAdvExcelReport(String getAdvReportfromDate,
+			String getAdvReporttoDate, String getAdvReportchanelid,
+			String getAdvReportclientId) {
+		// Generating AdvExcel report functionality
+		boolean reportGenerated = false;
+
+		try {
+
+			Map<String, List<AdvertisementTracking>> dateWiseAdvTrackingListMap = reportDao
+					.getAdvExcelReportList(getAdvReportfromDate,
+							getAdvReporttoDate, getAdvReportchanelid,
+							getAdvReportclientId);
+			HSSFWorkbook workbook = new HSSFWorkbook();
+			int previousMonth = 0;
+			int currentMonth = 0;
+			int rowNum = 0;
+			HSSFSheet sheet = null;
+			if (null != dateWiseAdvTrackingListMap
+					&& dateWiseAdvTrackingListMap.size() > 0) {
+				for (Map.Entry<String, List<AdvertisementTracking>> AdvTrackingListMap : dateWiseAdvTrackingListMap
+						.entrySet()) {
+					sheet = workbook.createSheet(String
+							.valueOf(AdvTrackingListMap.getKey()));
+					insertAdvDataIntoSheet(true, sheet,
+							AdvTrackingListMap.getValue(), rowNum++);
+				}
+			}
+		File f = new File("/home/dell/Projects/EMTS/src/main/webapp/pdfReports/Emts_AdvExcel_Report.xls");
+		f.mkdirs();
+		FileOutputStream out = new FileOutputStream(
+				new File(
+				"/home/dell/Projects/EMTS/src/main/webapp/pdfReports/Emts_AdvExcel_Report.xls"));
+		System.out.println(f.mkdirs());
+		System.out.println(f.createNewFile());
+			workbook.write(out);
+			out.close();
+			reportGenerated = true;
+
+		} catch (FileNotFoundException fileNotFoundException) {
+			fileNotFoundException.printStackTrace();
+		} catch (IOException ioException) {
+			ioException.printStackTrace();
+		}
+
+		return reportGenerated;
+	}
+
+	private void insertAdvDataIntoSheet(boolean headerRequired,
+			HSSFSheet sheet, List<AdvertisementTracking> advtrackingList,
+			int rowNum) {
+		// TODO Auto-generated method stub
+
+		if (headerRequired) {
+			// testing purpose
+	
+			Object[] headerList = new Object[] { "S.NO", "Slug",
+					"Advertisement Type Name", "Party", "City", "Start Time",
+					"End Time", "Duration" };
+			
+			createReportHeader(sheet, rowNum++, headerList);
+		}
+
+		Row row = null;
+		int cellnum = 0;
+		for (AdvertisementTracking advtracking : advtrackingList) {
+			if (advtrackingList.size() > 1) {
+				row = sheet.createRow(rowNum++);
+				cellnum = 0;
+			} else {
+				row = sheet.createRow(rowNum++);
+			}
+
+			Object[] advtrackingObject = convertAdvTrackingToObjectArray(advtracking);
+
+			if (null != advtrackingObject) {
+
+				for (Object obj : advtrackingObject) {
+					Cell cell = row.createCell(cellnum++);
+					if (obj instanceof Date)
+						cell.setCellValue((Date) obj);
+					else if (obj instanceof Boolean)
+						cell.setCellValue((Boolean) obj);
+					else if (obj instanceof String)
+						cell.setCellValue((String) obj);
+					else if (obj instanceof Double)
+						cell.setCellValue((Double) obj);
+					else if (obj instanceof Float)
+						cell.setCellValue((Float) obj);
+					else if (obj instanceof Integer)
+						cell.setCellValue((Integer) obj);
+				}
+			}
+		}
+
+	}
+
+	private Object[] convertAdvTrackingToObjectArray(
+			AdvertisementTracking advtracking) {
+		Object[] advtrackingObject = null;
+
+		if (null != advtracking)
+			advtrackingObject = new Object[] { advtracking.getAdvertismentId(),
+					advtracking.getTextArea(),
+					advtracking.getAdvType().getAdvtypeName(),
+					advtracking.getParty().getPartyName(),
+					advtracking.getCity().getCityName(),
+					advtracking.getStartTime(), advtracking.getEndTime(),
+					advtracking.getDuration() };
+
+		return advtrackingObject;
+	}
+
+	// generate Adv excel report functionality end
+
+	// *********************************************************************************************************************
+
+	// generate Print excel report functionality Start
+
+	public Boolean getPrintExcelReport(String getPrintReportfromDate,
+			String getPrintReporttoDate, String getPrintReportpublicationId,
+			String getPrintReportclientId) {
+		// TODO Auto-generated method stub
+		boolean reportGenerated = false;
+
+		try {
+
+			Map<String, List<PrintTracking>> dateWisePrintTrackingListMap = reportDao
+					.getPrintExcelReportList(getPrintReportfromDate,
+							getPrintReporttoDate, getPrintReportpublicationId,
+							getPrintReportclientId);
+			HSSFWorkbook workbook = new HSSFWorkbook();
+			int previousMonth = 0;
+			int currentMonth = 0;
+			int rowNum = 0;
+			HSSFSheet sheet = null;
+			if (null != dateWisePrintTrackingListMap
+					&& dateWisePrintTrackingListMap.size() > 0) {
+				for (Map.Entry<String, List<PrintTracking>> PrintTrackingListMap : dateWisePrintTrackingListMap
+						.entrySet()) {
+					sheet = workbook.createSheet(String
+							.valueOf(PrintTrackingListMap.getKey()));
+					insertPrintDataIntoSheet(true, sheet,
+							PrintTrackingListMap.getValue(), rowNum++);
+				}
+			}
+					
+			File f = new File("/home/dell/Projects/EMTS/src/main/webapp/pdfReports");
+		     f.mkdirs();
+		     FileOutputStream out = new FileOutputStream(
+						new File("/home/dell/Projects/EMTS/src/main/webapp/pdfReports/Emts_PrintExcel_Report.xls"));
+		
+		     workbook.write(out);
+			out.close();
+			reportGenerated = true;
+
+		} catch (FileNotFoundException fileNotFoundException) {
+			fileNotFoundException.printStackTrace();
+		} catch (IOException ioException) {
+			ioException.printStackTrace();
+		}
+
+		return reportGenerated;
+	}
+
+	private void insertPrintDataIntoSheet(boolean headerRequired,
+			HSSFSheet sheet, List<PrintTracking> printtrackingList, int rowNum) {
+
+		// TODO Auto-generated method stub
+
+		if (headerRequired) {
+			// testing purpose
+			Object[] headerList = new Object[] { "S.NO", "Slug", "Page",
+					"City", "News Size(in Column)", "With photo", "Sector",
+					"Sub Sector", "News Trend", "Story Code" };
+			createReportHeader(sheet, rowNum++, headerList);
+		}
+
+		Row row = null;
+		int cellnum = 0;
+		for (PrintTracking printtracking : printtrackingList) {
+			if (printtrackingList.size() > 1) {
+				row = sheet.createRow(rowNum++);
+				cellnum = 0;
+			} else {
+				row = sheet.createRow(rowNum++);
+			}
+
+			Object[] printtrackingObject = convertPrintTrackingToObjectArray(printtracking);
+
+			if (null != printtrackingObject) {
+
+				for (Object obj : printtrackingObject) {
+					Cell cell = row.createCell(cellnum++);
+					if (obj instanceof Date)
+						cell.setCellValue((Date) obj);
+					else if (obj instanceof Boolean)
+						cell.setCellValue((Boolean) obj);
+					else if (obj instanceof String)
+						cell.setCellValue((String) obj);
+					else if (obj instanceof Double)
+						cell.setCellValue((Double) obj);
+					else if (obj instanceof Float)
+						cell.setCellValue((Float) obj);
+					else if (obj instanceof Integer)
+						cell.setCellValue((Integer) obj);
+					else if (obj instanceof Short)
+						cell.setCellValue((Short) obj);
+				}
+			}
+		}
+
+	}
+
+	private Object[] convertPrintTrackingToObjectArray(
+			PrintTracking printtracking) {
+		{
+
+			Object[] printtrackingObject = null;
+
+			if (null != printtracking)
+				printtrackingObject = new Object[] {
+						printtracking.getPrintTrackingId(),
+						printtracking.getTextArea(),
+						printtracking.getPageNumber(),
+						printtracking.getCity().getCityName(),
+						printtracking.getNewsColumn(),
+						printtracking.getPhoto(),
+						printtracking.getSector().getSectorName(),
+						printtracking.getSubSector().getSubSectorName(),
+						printtracking.getNewsTrend(),
+						printtracking.getStoryCode() };
+
+			return printtrackingObject;
+		}
+
+	}
+
+	// generate Print excel report functionality End
+	// *********************************************************************************************************************
+
+}

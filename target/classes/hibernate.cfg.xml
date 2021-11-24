@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-configuration PUBLIC "-//Hibernate/Hibernate Configuration DTD 3.0//EN"
+                                         "http://hibernate.sourceforge.net/hibernate-configuration-3.0.dtd">
+<hibernate-configuration>
+	<session-factory>
+
+		<mapping class="com.emts.model.Country" />
+		<mapping class="com.emts.model.City" />
+		<mapping class="com.emts.model.Chanel" />
+		<mapping class="com.emts.model.Sector" />
+		<mapping class="com.emts.model.Client" />
+		<mapping class="com.emts.model.SubSector" />
+		<mapping class="com.emts.model.Party" />
+		<mapping class="com.emts.model.AdvType" />
+		<mapping class="com.emts.model.State" />
+		<mapping class="com.emts.model.AdvertisementTracking" />
+		<mapping class="com.emts.model.PrintTracking" />
+		<mapping class="com.emts.model.Tracking" />
+		<mapping class="com.emts.model.Publication" />
+		<mapping class="com.emts.model.NewsType" />
+		<mapping class="com.emts.model.AbstractEntity" />
+	    <mapping class="com.emts.model.PopUp" />
+		<mapping class="com.emts.model.Registration" />
+		<mapping class="com.emts.model.Publication" />
+		<mapping class="com.emts.model.PieChart" />
+		<mapping class="com.emts.model.User" />
+	</session-factory>
+</hibernate-configuration>

@@ -1,0 +1,1 @@
+$(function(){$("#selectall").click(function(){$(".case").attr("checked",this.checked)}),$(".case").click(function(){$(".case").length==$(".case:checked").length?$("#selectall").attr("checked","checked"):$("#selectall").removeAttr("checked")})});

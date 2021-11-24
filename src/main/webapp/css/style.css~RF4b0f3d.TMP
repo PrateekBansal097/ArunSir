@@ -1,0 +1,161 @@
+body{
+	background-image: url(../images/pagebg.png);
+	margin: 0px;
+	padding: 0px;
+	font-family: Arial, Helvetica, sans-serif;
+	font-size: 12px;
+	font-weight: normal;
+	color: #000;
+	text-decoration: none;
+}
+
+
+.index_bg{
+	background-image: url(../images/bg_mid.png);
+	height: 306px;
+	background-repeat: repeat-x;
+	background-position: 0px 38px;
+}
+
+.index_logo{
+	float: left;
+	margin-top: 120px;
+}
+.index_loginbg{
+	float: right;
+	width: 357px;
+	background-image: url(../images/bg_login.png);
+	background-repeat: no-repeat;
+	height: 411px;
+	margin-right: 80px;
+}
+
+.index_mid{
+	width: 980px;
+	margin-right: auto;
+	margin-left: auto;
+	background-color: #F63;
+}
+
+.login_head{
+	color: #FFF;
+	font-size: 20px;
+	font-weight: bold;
+	padding-top: 8px;
+	padding-right: 8px;
+	padding-bottom: 8px;
+	padding-left: 12px;
+	margin-bottom: 55px;
+}
+
+.login_mid{
+	width: 300px;
+	margin-right: auto;
+	margin-left: auto;
+	color: #000;
+	text-decoration: none;
+	text-transform: none;
+	font-weight: bold;
+	font-size: 14px;
+	margin-bottom: 75px;
+}
+
+.login_bottom{
+	width: 250px;
+	margin-right: auto;
+	margin-left: auto;
+	font-weight: bold;
+	text-decoration: none;
+}
+
+.login_bottom a{
+	text-decoration: none;
+	color: #d3d3d3;
+	font-weight: bold;
+}
+
+
+
+.login_bottom a:hover{
+	color: #0A0A0B;
+}
+
+
+.txt_box1{
+	border-radius: 6px;
+	padding: 10px;
+	border: 1px solid #b9bbbe;
+	width: 250px;
+	background-color: #f0f0f0;
+}
+
+
+.inner_logo{
+	float: left;
+	padding: 15px;
+}
+
+.inner_rightmain{
+	float: right;
+	margin-right: 25px;
+	margin-top: 15px;
+}
+
+.inner_rightmain a{
+	color: #000;
+	text-decoration: none;
+}
+
+.inner_rightmain a:hover{
+	color: #090;
+}
+
+.pagehead{
+	background-image: url(../images/bg_pagehead1.png);
+	height: 51px;
+	text-align: right;
+	color: #FFF;
+	font-size: 21px;
+	font-weight: normal;
+	padding-right: 15px;
+	padding-top: 9px;
+	background-color: #FFF;
+	background-position: left top;
+}
+
+.inner_leftlink_main{
+	background-image: url(../images/bg_left.png);
+	background-repeat: repeat-y;
+	width: 235px;
+	height: 500px;
+}
+
+.inner_leftlink{
+}
+
+.inner_leftlink td{
+	
+}
+
+.inner_leftlink td a{
+	text-decoration: none;
+	color: #333;
+	font-weight: bold;
+	padding: 8px;
+	font-size: 13px;
+	border-bottom-width: 1px;
+	border-bottom-style: solid;
+	border-bottom-color: #c0baba;
+	float: left;
+	width: 212px;
+}
+
+.inner_leftlink td a:hover{
+	background-color: #c7c7c7;
+}
+
+
+.footer{
+	background-color: #0c0c0c;
+	padding: 10px;
+}

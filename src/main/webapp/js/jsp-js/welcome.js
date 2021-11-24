@@ -1,0 +1,1 @@
+function loggedInUser(){if(document.myform.action="onloginSubmit.do",document.myform.submit(),$("#c1").is(":checked")){var e=$("#username").val(),o=$("#pass").val();$.cookie("pm[email]",e,{expires:365}),$.cookie("pm[pass]",o,{expires:365}),$.cookie("pm[remember]",!0,{expires:365})}else $.cookie("pm[email]",null),$.cookie("pm[pass]",null),$.cookie("pm[remember]",!1)}
